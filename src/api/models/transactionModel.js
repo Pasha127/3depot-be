@@ -5,7 +5,7 @@ const transactionDBSchema = new Schema(
     user: { type: Schema.Types.ObjectId, ref: "User" },
     assets: [{ type: Schema.Types.ObjectId, ref: "Asset" }],
     moneyCharged: {type: Number},
-    creditsEarned: {type: Number}
+    credits: {type: Number}
   },
   {
     timestamps: true,

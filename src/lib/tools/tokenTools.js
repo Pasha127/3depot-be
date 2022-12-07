@@ -4,7 +4,7 @@ import userModel from "../../api/models/userModel.js";
 
 
 export const createTokens = async user => {
-  const accessToken = await createAccessToken({ _id: user._id, username: user.username });
+  const accessToken = await createAccessToken({ _id: user._id, username: user.username, role: user.role });
   const refreshToken = await createRefreshToken({ _id: user._id });
  
   user.refreshToken = refreshToken;

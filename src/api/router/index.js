@@ -1,7 +1,7 @@
 import express from "express";
 import q2m from "query-to-mongo";
 import createHttpError from "http-errors";
-import { JWTAuth } from "../../lib/auth/middleware.js";
+import { AdminOnly, JWTAuth } from "../../lib/auth/middleware.js";
 import { createTokens, refreshTokens } from "../../lib/tools/tokenTools.js";
 import {
   checkUserSchema,
@@ -222,12 +222,21 @@ router.put("/user/me", JWTAuth, async (req, res, next) => {
   }
   try {
     console.log(req.headers.origin, "PUT User at:", new Date());
-    const updatedUser = await userModel.findByIdAndUpdate(
-      req.user._id,
-      { ...req.body },
-      { new: true, runValidators: true }
-    );
-    res.status(200).send(updatedUser);
+    const foundUser = await userModel.findById(
+      req.user._id);
+    if(req.body.firstName){foundUser.firstName = req.body.firstName}
+    if(req.body.lastName){foundUser.lastName = req.body.lastName}
+    if(req.body.username){
+      const sameNamedUser=await userModel.findOne({username:req.body.username})
+      console.log("same named user: ",sameNamedUser);
+      if(sameNamedUser){
+      next(createHttpError(401, "Username Taken"))
+      return
+    }
+      else{foundUser.username = req.body.username}
+    }
+    foundUser.save();
+    res.status(200).send(foundUser);
   } catch (error) {
     console.log("Put me", error);
     next(error);
@@ -244,7 +253,21 @@ router.delete("/user/me", JWTAuth, async (req, res, next) => {
       next(createHttpError(404, "User Not Found"));
     }
   } catch (error) {
-    console.log("Delete me", error);
+    console.log("Delete Me", error);
+    next(error);
+  }
+});
+router.delete("/user/:userId", JWTAuth, AdminOnly, async (req, res, next) => {
+  try {
+    console.log(req.headers.origin, "DELETE User at:", new Date());
+    const deletedUser = await userModel.findByIdAndDelete(req.params.userId);
+    if (deletedUser) {
+      res.status(204).send({ message: "User has been deleted." });
+    } else {
+      next(createHttpError(404, "User Not Found"));
+    }
+  } catch (error) {
+    console.log("Delete User", error);
     next(error);
   }
 });
@@ -562,7 +585,7 @@ router.get("/asset/:assetId", JWTAuth, async (req, res, next) => {
   }
 });
 
-router.post("/asset/", JWTAuth, async (req, res, next) => {
+router.post("/asset/", JWTAuth, cloudinaryProductUploader, async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});

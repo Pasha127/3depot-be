@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 import listEndpoints from "express-list-endpoints"
-import {server} from "./server.js"
+import {server, httpServer} from "./server.js"
 
 const port = process.env.PORT || 3001
 

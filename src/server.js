@@ -14,7 +14,7 @@ import { verifyAccessToken } from "./lib/tools/tokenTools.js";
 
 
 export const server = express();
-const httpServer = createServer(server);
+export const httpServer = createServer(server);
 export const io = new SocketServer(httpServer);
 io.use( async(socket, next) => {
   const token = socket.handshake.headers.cookie?.split(";")[0].replace("accessToken=", "");

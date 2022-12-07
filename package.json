@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "backend for 3Depot",
   "main": "index.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll",
@@ -43,7 +43,8 @@
     "passport-google-oauth20": "^2.0.0",
     "pdfmake": "^0.2.6",
     "query-to-mongo": "^0.10.2",
-    "socket.io": "^4.5.3"
+    "socket.io": "^4.5.3",
+    "stripe": "^11.1.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

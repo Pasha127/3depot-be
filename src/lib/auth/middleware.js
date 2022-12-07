@@ -13,6 +13,7 @@ export const JWTAuth = async (req, res, next) => {
       req.user = {
         _id: payload._id,
         username: payload.username,
+        role: payload.role
       }
       next()
       }else{
@@ -22,6 +23,7 @@ export const JWTAuth = async (req, res, next) => {
       req.user = {
         _id: user._id,
         username: user.username,
+        role: user.role
       };
       req.newTokens={
         accessToken,
@@ -33,4 +35,11 @@ export const JWTAuth = async (req, res, next) => {
       next(createHttpError(401, "Token invalid!"))
     }
   }
+}
+
+export const AdminOnly = async (req, res, next) => {
+  if(req.user.role !== "Admin"){
+    next(createHttpError(401, "Access Denied"))
+  }
+  next()
 }

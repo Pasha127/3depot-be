@@ -11,17 +11,62 @@ import { server } from "../src/server";
 dotenv.config();
 const client = supertest(server);
 
-const newUser = {
-    email: "testuser@jest.com",
-    username: "jester420",
-    firstName: "Jess",
-    lastName: "Terr"
-}
-
-const newAsset = {
-    name: "Rad Horse",
-    type: "Game Optimized 3D Model",
-    
-}
 
 
+
+
+
+
+
+
+/* 
+
+describe("POST /user/register", () => {
+  let user;
+
+  beforeEach(() => {
+    user = {
+      email: "test@gmail.com",
+      username: "test",
+      password: "test123",
+      name: "Test User"
+    };
+  });
+
+  it("should register a new user", async () => {
+    const res = await request(app)
+      .post("/user/register")
+      .send(user);
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toEqual(
+      expect.objectContaining({
+        email: user.email,
+        username: user.username,
+        name: user.name,
+        credits: 10
+      })
+    );
+    expect(res.headers["set-cookie"]).toBeDefined();
+  });
+
+  it("should return a 400 error if the email is already in use", async () => {
+    await userModel.create(user);
+    const res = await request(app)
+      .post("/user/register")
+      .send(user);
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.message).toEqual(`Email or username already in use`);
+  });
+
+  it("should return a 500 error if there is an internal server error", async () => {
+    const saveSpy = jest.spyOn(userModel.prototype, "save").mockImplementationOnce(() => {
+      throw new Error("Test error");
+    });
+    const res = await request(app)
+      .post("/user/register")
+      .send(user);
+    expect(saveSpy).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toEqual(500);
+    expect(res.body.message).toEqual(`Registration error`);
+  });
+}); */

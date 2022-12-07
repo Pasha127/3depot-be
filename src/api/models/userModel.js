@@ -6,6 +6,7 @@ const userDBSchema = new Schema(
     password: { type: String },
     email: { type: String, required: true, unique: true },
     username: { type: String, required: true},
+    role: { type: String, default: "User"},
     firstName: { type: String, default: "Jo"},
     lastName: { type: String, default: "Doe"},
     purchases:  [{ type: Schema.Types.ObjectId, ref: "Asset" }],
