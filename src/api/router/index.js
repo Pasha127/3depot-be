@@ -45,7 +45,14 @@ const cloudinaryProductUploader = multer({
     params: {folder: "3DepotProducts"},
   }),
   limits: { fileSize: 1024 * 1024 },
-}).single("image")
+}).array("image")
+const cloudinaryModelUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary, 
+    params: {folder: "3DepotProducts", resource_type: "image"},
+  }),
+  limits: { fileSize: 1024 * 1024 },
+}).single("model")
 
 
 ////////////////////////////  USERS  ////////////////////////////
@@ -585,7 +592,7 @@ router.get("/asset/:assetId", JWTAuth, async (req, res, next) => {
   }
 });
 
-router.post("/asset/", JWTAuth, cloudinaryProductUploader, async (req, res, next) => {
+router.post("/asset/pic", JWTAuth, cloudinaryProductUploader, async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
@@ -603,6 +610,7 @@ router.post("/asset/", JWTAuth, cloudinaryProductUploader, async (req, res, next
     next(error);
   }
 });
+
 
 router.put("/asset/:assetId", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
@@ -666,6 +674,7 @@ router.get("/file/", JWTAuth, async (req, res, next) => {
   }
 });
 
+
 router.get("/file/:fileId", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
@@ -686,7 +695,17 @@ router.get("/file/:fileId", JWTAuth, async (req, res, next) => {
   }
 });
 
-router.post("/file/", JWTAuth, async (req, res, next) => {
+router.post("/file/upload/:fileId", JWTAuth, cloudinaryModelUploader, async (req, res, next) => {
+  try {
+      console.log(req.headers.origin, "POST file at:", new Date());        
+      const updatedFile = await userModel.findByIdAndUpdate(req.params.fileId,{link:req.file.path});
+} catch (error) {
+      console.log("Error in file upload", error);
+      next(error);
+  }   
+});
+
+router.post("/file/data", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
