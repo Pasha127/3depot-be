@@ -13,7 +13,7 @@ const googleStrategy = new GoogleStrategy(
     //(accessToken, refreshToken, profile, cb)
 
     try {
-      const { email, sub, picture } = profile._json;
+      const { email, sub, picture, given_name, family_name } = profile._json;
      /*  console.log("google data", email, sub, picture); */
       const user = await userModel.findOne({ email });
       if (user) {
@@ -23,6 +23,8 @@ const googleStrategy = new GoogleStrategy(
         const newUser = new userModel({
           email: email.toLowerCase(),
           username: email.split("@")[0],
+          firstName:given_name,
+          lastName:family_name,
           avatar: picture,
           credits: 10
         });

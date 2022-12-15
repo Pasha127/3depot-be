@@ -46,13 +46,14 @@ const cloudinaryProductUploader = multer({
   }),
   limits: { fileSize: 1024 * 1024 },
 }).array("image")
+
+
 const cloudinaryModelUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary, 
     params: {folder: "3DepotProducts", resource_type: "image"},
-  }),
-  limits: { fileSize: 1024 * 1024 },
-}).single("model")
+  })
+}).array("model")
 
 
 ////////////////////////////  USERS  ////////////////////////////
@@ -697,8 +698,8 @@ router.get("/file/:fileId", JWTAuth, async (req, res, next) => {
 
 router.post("/file/upload/:fileId", JWTAuth, cloudinaryModelUploader, async (req, res, next) => {
   try {
-      console.log(req.headers.origin, "POST file at:", new Date());        
-      const updatedFile = await userModel.findByIdAndUpdate(req.params.fileId,{link:req.file.path});
+      console.log(req.headers.origin, "POST files at:", new Date());        
+      const updatedFile = await fileModel.findByIdAndUpdate(req.params.fileId,{link:req.file.path});
 } catch (error) {
       console.log("Error in file upload", error);
       next(error);
