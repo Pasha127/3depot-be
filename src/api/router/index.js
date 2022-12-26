@@ -105,7 +105,8 @@ router.post("/user/avatar", JWTAuth, cloudinaryAvatarUploader, async (req, res, 
     try {
         console.log(req.headers.origin, "POST user at:", new Date());        
         const updatedUser = await userModel.findByIdAndUpdate(req.user._id,{avatar:req.file.path});
-  } catch (error) {
+        res.status(201).send({message:`${updatedUser._id} avatar uploaded`})
+      } catch (error) {
         console.log("Error in avatar upload", error);
         next(error);
     }   

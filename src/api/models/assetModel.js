@@ -16,7 +16,7 @@ const assetDBSchema = new Schema(
       tris: { type: Number},
       verts: { type: Number},
       filetypes: { type: String},
-      files: { type: Schema.Types.ObjectId, ref: "File" }
+      files: [{ type: Schema.Types.ObjectId, ref: "File" }]
     },
     price: {type: Number},
     creditValue: {type: Number}
