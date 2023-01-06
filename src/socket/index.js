@@ -31,9 +31,9 @@ export const newConnectionHandler = (newClient) => {
   
   newClient.on("sendMessage", async (socket) => {
     console.log("sendMsg");
-    console.log("this is incoming message", socket.message.message);
+    console.log("Incoming message", socket.message.message);
     const msg = new MessageModel(socket.message.message);
-    console.log("this is saved message", msg);
+    console.log("Saved message", msg);
     const newMsg = await msg.save();
     const commonChat = await chatModel.find({
       members: socket.message.members

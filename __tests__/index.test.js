@@ -14,11 +14,6 @@ const client = supertest(server);
 
 
 
-
-
-
-
-
 /* 
 
 describe("POST /user/register", () => {
