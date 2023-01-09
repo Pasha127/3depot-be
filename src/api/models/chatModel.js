@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import MessageModel from "./MessageModel.js";
 
 const chatDBSchema = new Schema(
   {
@@ -9,6 +10,16 @@ const chatDBSchema = new Schema(
     timestamps: true,
   }
 );
+
+
+chatDBSchema.pre("remove", async function (next) {
+  try{
+    await MessageModel.deleteMany({ _id: { $in: this.messages } })
+    next();
+  }catch(err){
+    next(err)
+  }
+});
 
 chatDBSchema.methods.toJSON = function () {
   const chat = this.toObject();

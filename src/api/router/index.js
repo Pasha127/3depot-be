@@ -388,15 +388,16 @@ router.get("/chat/me", JWTAuth, async (req, res, next) => {
   
   router.delete("/chat/:chatId", JWTAuth, async (req, res, next) => {
     try {
-      const deletedChat = await chatModel.findByIdAndDelete(req.params.chatId);
+      const deletedChat = await chatModel.findOne({_id:req.params.chatId});
       if (deletedChat) {
+        deletedChat.remove();
         res.status(204).send({message:`Deleted chat:${deletedChat._id}`});
       } else {
         next(createHttpError(404, `Error - Chat Not Found`));
       }
     } catch (error) {
       console.log(error)
-      next(error);
+      next(error); 
     }
   }); 
   
