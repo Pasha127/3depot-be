@@ -5,13 +5,25 @@ import {server, httpServer} from "./server.js"
 const port = process.env.PORT || 3001
 
 
-mongoose.connect(process.env.MONGO_CONNECTION_URL);
-
-mongoose.connection.on("connected", () =>
+const startServer = () => {
   httpServer.listen(port, () => {
     console.table(listEndpoints(server));
     console.log(`Server running on port ${port}`);
-  })
+  });
+};
+
+mongoose.connect(process.env.MONGO_CONNECTION_URL);
+
+mongoose.connection.on("connected", startServer);
+
+mongoose.connection.on("disconnected", () => {
+  console.log("Mongoose connection disconnected");
+});
+
+mongoose.connection.on("reconnected", startServer);
+
+mongoose.connection.on("error", (error) =>
+  console.log(`Mongoose connection failed due to ${error}`)
 );
 
 server.on("error", (error) =>
