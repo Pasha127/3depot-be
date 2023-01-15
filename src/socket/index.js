@@ -28,7 +28,11 @@ export const newConnectionHandler = (newClient) => {
     newClient.join(socket.chatRoomId); 
     joinedRoom = socket.chatRoomId;
   }) 
-  
+
+  newClient.on("typing", async(socket)=>{
+    io.to(socket.activeChat._id).emit("friendTyping", socket.user)
+  }) 
+
   newClient.on("sendMessage", async (socket) => {
     console.log("sendMsg");
     console.log("Incoming message", socket.message.message);
