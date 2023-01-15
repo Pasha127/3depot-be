@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import MessageModel from "./MessageModel.js";
+import { v2 as cloudinary } from "cloudinary";
 
 const chatDBSchema = new Schema(
   {
@@ -14,7 +15,15 @@ const chatDBSchema = new Schema(
 
 chatDBSchema.pre("remove", async function (next) {
   try{
-    await MessageModel.deleteMany({ _id: { $in: this.messages } })
+    const msgArray = await MessageModel.find({ _id: { $in: this.messages } })
+    msgArray.forEach(message =>{
+      if(message.content.media) {
+        const mediaUrl= message.content.media.split("/")
+        cloudinary.uploader.destroy(`3DepotMessages/${mediaUrl[mediaUrl.length -1].split(".")[0]}`, function(error,result) {
+          console.log(result, `${mediaUrl[mediaUrl.length -1].split(".")[0]}`, error) }) 
+      }
+    })    
+      await MessageModel.deleteMany({ _id: { $in: this.messages } })
     next();
   }catch(err){
     next(err)

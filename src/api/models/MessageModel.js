@@ -5,7 +5,7 @@ const messageDBSchema = new Schema(
     sender: { type: Schema.Types.ObjectId, ref: "User" },
     content: {
       text: { type: String, default: " "},
-      media: { type: String }
+      media: { type: String, default: "" }
     },
   },
   {

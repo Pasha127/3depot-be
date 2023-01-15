@@ -3,15 +3,17 @@ import listEndpoints from "express-list-endpoints"
 import {server, httpServer} from "./server.js"
 
 const port = process.env.PORT || 3001
-
+let serverStarted = false;
 
 const startServer = () => {
-  httpServer.listen(port, () => {
-    console.table(listEndpoints(server));
-    console.log(`Server running on port ${port}`);
-  });
+  if (!serverStarted) {
+    httpServer.listen(port, () => {
+      console.table(listEndpoints(server));
+      console.log(`Server running on port ${port}`);
+      serverStarted = true;
+    });
+  }
 };
-
 mongoose.connect(process.env.MONGO_CONNECTION_URL);
 
 mongoose.connection.on("connected", startServer);

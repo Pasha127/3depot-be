@@ -37,14 +37,14 @@ const cloudinaryAvatarUploader = multer({
     cloudinary, 
     params: {folder: "3DepotAvatars"},
   }),
-  limits: { fileSize: 1024 * 1024 },
+  limits: { fileSize: 1024 * 1024 }
 }).single("image")
 const cloudinaryProductUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary, 
     params: {folder: "3DepotProducts"},
   }),
-  limits: { fileSize: 1024 * 1024 },
+  limits: { fileSize: 1024 * 1024 }
 }).array("image")
 
 
@@ -54,6 +54,14 @@ const cloudinaryModelUploader = multer({
     params: {folder: "3DepotProducts", resource_type: "image"},
   })
 }).array("model")
+
+const cloudinaryMsgPicUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary, 
+    params: {folder: "3DepotMessages", resource_type: "image"},
+  }),
+  limits: { fileSize: 1024 * 1024 }
+}).single("image")
 
 
 ////////////////////////////  USERS  ////////////////////////////
@@ -403,6 +411,19 @@ router.get("/chat/me", JWTAuth, async (req, res, next) => {
   
   // ------------------- message endpoints -----------------------------
   
+
+  router.post("/message/pic", JWTAuth, cloudinaryMsgPicUploader, async (req, res, next) => {
+    try {
+        console.log(req.headers.origin, "POST MsgPic at:", new Date());        
+        if(req.file.path){res.status(201).send({imgURL:`${req.file.path}`});}
+        else{res.status(400).send({message:"Image Upload Failed"})}
+      } catch (error) {
+        console.log("Error in msg pic upload", error);
+        next(error);
+    }   
+  });
+
+
   router.post("/message", JWTAuth, checkMessageSchema, checkMessageValidationResult, async (req, res, next) => {
     try {
       const newMessage = await MessageModel({...req.body, sender: req.user._id});
