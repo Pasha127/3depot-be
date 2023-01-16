@@ -9,13 +9,13 @@ const assetDBSchema = new Schema(
     model:{type:String},
     stats: {
       sales: { type: Number},
-      swaps: { type: Number}
+      swaps: { type: Number},
+      views: { type: Number}
     },
     properties: {
-      polys: { type: Number},
-      tris: { type: Number},
+      faces: { type: Number},
       verts: { type: Number},
-      filetypes: { type: String},
+      filetype: { type: String},
       files: [{ type: Schema.Types.ObjectId, ref: "File" }]
     },
     price: {type: Number},
