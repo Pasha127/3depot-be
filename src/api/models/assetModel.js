@@ -16,10 +16,13 @@ const assetDBSchema = new Schema(
       faces: { type: Number},
       verts: { type: Number},
       filetype: { type: String},
-      files: [{ type: Schema.Types.ObjectId, ref: "File" }]
+      file: { type: Schema.Types.ObjectId, ref: "File" }
     },
     price: {type: Number},
-    creditValue: {type: Number}
+    creditValue: {type: Number},
+    description: {type: String},
+    keywords: {type: String},
+    comments: [{type: Schema.Types.ObjectId, ref: "File"}]
   },
   {
     timestamps: true,
