@@ -39,6 +39,7 @@ const cloudinaryAvatarUploader = multer({
   }),
   limits: { fileSize: 1024 * 1024 }
 }).single("image")
+
 const cloudinaryProductUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary, 
@@ -51,9 +52,9 @@ const cloudinaryProductUploader = multer({
 const cloudinaryModelUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary, 
-    params: {folder: "3DepotProducts", resource_type: "image"},
+    params: {folder: "3DepotProducts", resource_type: "raw"},
   })
-}).array("model")
+}).single("model")
 
 const cloudinaryMsgPicUploader = multer({
   storage: new CloudinaryStorage({
@@ -576,7 +577,7 @@ router.delete("/transaction/:transactionId", JWTAuth, async (req, res, next) => 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Assets ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-router.get("/asset/", JWTAuth, async (req, res, next) => {
+router.get("/asset", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
@@ -616,13 +617,28 @@ router.get("/asset/:assetId", JWTAuth, async (req, res, next) => {
   }
 });
 
-router.post("/asset/pic", JWTAuth, cloudinaryProductUploader, async (req, res, next) => {
+router.post("/asset", JWTAuth, cloudinaryModelUploader, async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
   }
   try {
-    const newAsset = await assetModel(req.body);
+    console.log(req.body, req.file)
+    const uploadedData = req.body;
+    const newFile = await fileModel({
+      name: uploadedData.name,
+      type: uploadedData.type,
+      link: req.file.path
+    })
+    const savedFile = await newFile.save();
+    const newAsset = await assetModel({
+      name: uploadedData.name,
+      type: uploadedData.type,
+      poster: uploadedData.poster,
+      description: uploadedData.description,
+      keywords: uploadedData.keywords,
+      file: savedFile._id
+    });
     const { _id } = await newAsset.save();
     console.log("New Asset: ", _id);
     if (_id) {
@@ -719,10 +735,11 @@ router.get("/file/:fileId", JWTAuth, async (req, res, next) => {
   }
 });
 
-router.post("/file/upload/:fileId", JWTAuth, cloudinaryModelUploader, async (req, res, next) => {
+router.post("/file/upload", JWTAuth, cloudinaryModelUploader, async (req, res, next) => {
   try {
-      console.log(req.headers.origin, "POST files at:", new Date());        
-      const updatedFile = await fileModel.findByIdAndUpdate(req.params.fileId,{link:req.file.path});
+      console.log(req.headers.origin, "POST file at:", new Date());        
+      const newFile = await fileModel(req.body);
+      const { _id } = await newFile.save();
 } catch (error) {
       console.log("Error in file upload", error);
       next(error);

@@ -6,7 +6,7 @@ const assetDBSchema = new Schema(
     type: { type: String},
     poster: { type: Schema.Types.ObjectId, ref: "User" },
     pictures:[{type: String}],
-    model:{type:String},
+    file: { type: Schema.Types.ObjectId, ref: "File" },
     stats: {
       sales: { type: Number},
       swaps: { type: Number},
@@ -15,8 +15,6 @@ const assetDBSchema = new Schema(
     properties: {
       faces: { type: Number},
       verts: { type: Number},
-      filetype: { type: String},
-      file: { type: Schema.Types.ObjectId, ref: "File" }
     },
     price: {type: Number},
     creditValue: {type: Number},

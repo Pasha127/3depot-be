@@ -11,7 +11,7 @@ import { Server as SocketServer } from "socket.io";
 import { createServer } from "http";
 import { newConnectionHandler } from "./socket/index.js";
 import { verifyAccessToken } from "./lib/tools/tokenTools.js";
-
+import bodyParser from "body-parser";
 
 export const server = express();
 export const httpServer = createServer(server);
@@ -37,5 +37,7 @@ server.use(cors({
 server.use(cookieParser());
 server.use(express.json());
 server.use(passport.initialize());
+/* server.use(bodyParser.urlencoded({ extended: true }));
+server.use(bodyParser.json()); */
 server.use("/", router);
 server.use(errorHandler);
