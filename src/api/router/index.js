@@ -577,14 +577,44 @@ router.delete("/transaction/:transactionId", JWTAuth, async (req, res, next) => 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Assets ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+router.get("/asset/search/:query", JWTAuth, async (req, res, next) => {
+  if (req.newTokens) {
+    res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
+    res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
+  }
+  const mongoQuery = q2m(req.query)
+  try {
+    console.log(req.headers.origin, `Search Assets for ${req.params.query} At:`, new Date());
+    const foundAssets = await assetModel.find({
+      $or: [
+        { name: { $regex: new RegExp(req.params.query, "i") } },
+        { keywords: { $regex: new RegExp(req.params.query, "i") } },
+        { description: { $regex: new RegExp(req.params.query, "i") } },
+      ],
+    }).skip(mongoQuery.options.skip)
+    .limit(mongoQuery.options.limit);
+    /* .sort(mongoQuery.options.sort); */
+    console.log("Found Assets: ", foundAssets);
+    if (foundAssets) {
+      res.status(200).send(foundAssets);
+    } else {
+      next(createHttpError(404, "Assets Not Found"));
+    }
+  } catch (error) {
+    console.log("Get Assets Error:", error);
+    next(error);
+  }
+});
+
 router.get("/asset", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
   }
+  const mongoQuery = q2m(req.query)
   try {
     console.log(req.headers.origin, "GET Assets At:", new Date());
-    const foundAssets = await assetModel.find();
+    const foundAssets = await assetModel.find().sort(mongoQuery.options.sort);
     console.log("Found Assets: ", foundAssets);
     if (foundAssets) {
       res.status(200).send(foundAssets);
@@ -604,7 +634,7 @@ router.get("/asset/:assetId", JWTAuth, async (req, res, next) => {
   }
   try {
     console.log(req.headers.origin, "GET Asset At:", new Date());
-    const foundAsset = await assetModel.findById(req.params.assetId);
+    const foundAsset = await assetModel.findById(req.params.assetId).populate('file').populate('comments');
     console.log("Found Asset: ", foundAsset);
     if (foundAsset) {
       res.status(200).send(foundAsset);

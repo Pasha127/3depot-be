@@ -20,7 +20,10 @@ const assetDBSchema = new Schema(
     creditValue: {type: Number},
     description: {type: String},
     keywords: {type: String},
-    comments: [{type: Schema.Types.ObjectId, ref: "File"}]
+    comments: [{
+      text: {type: String},
+      user:  { type: Schema.Types.ObjectId, ref: "User" }
+    }]
   },
   {
     timestamps: true,
