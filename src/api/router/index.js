@@ -602,7 +602,12 @@ router.post("/comment/:assetId", JWTAuth, cloudinaryModelUploader, async (req, r
     const updatedAsset = await assetModel.findByIdAndUpdate(
       req.params.assetId, 
       { $push: { comments: _id } }
-  );
+  ).populate("file").populate({
+    path : 'comments',
+    populate : {
+      path : 'sender'
+    }
+  });
     console.log("New comment: ", _id);
     if (_id) {
       res.status(201).send(updatedAsset);
