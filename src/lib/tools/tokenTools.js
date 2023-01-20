@@ -15,7 +15,7 @@ export const createTokens = async user => {
 
 const createAccessToken = payload =>
   new Promise(function (res, rej) {
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "5h" }, (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" }, (err, token) => {
       if (err) rej(err);
       else res(token);
     })
@@ -32,7 +32,7 @@ export const verifyAccessToken = accessToken =>
 
 const createRefreshToken = payload =>
   new Promise((res, rej) => {
-    jwt.sign(payload, process.env.REFRESH_SECRET, { expiresIn: "1d" }, (err, token) => {
+    jwt.sign(payload, process.env.REFRESH_SECRET, { expiresIn: "5d" }, (err, token) => {
       if (err) rej(err);
       else res(token);
     })
