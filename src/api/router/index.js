@@ -617,7 +617,7 @@ router.post("/comment/:assetId", JWTAuth, cloudinaryModelUploader, async (req, r
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Assets ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-router.get("/asset/search/:query", JWTAuth, async (req, res, next) => {
+router.get("/asset/search/:query", async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
@@ -675,7 +675,7 @@ router.get("/asset/search/:query", JWTAuth, async (req, res, next) => {
 
 
 
-router.get("/asset/:assetId", JWTAuth, async (req, res, next) => {
+router.get("/asset/:assetId", async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
@@ -700,7 +700,7 @@ router.get("/asset/:assetId", JWTAuth, async (req, res, next) => {
   }
 });
 
-router.get("/asset", JWTAuth, async (req, res, next) => {
+router.get("/asset", async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
