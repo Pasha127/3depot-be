@@ -1,4 +1,5 @@
 import createHttpError from "http-errors"
+import assetModel from "../../api/models/assetModel.js";
 import { refreshTokens, verifyAccessToken } from "../tools/tokenTools.js";
 
 export const JWTAuth = async (req, res, next) => {
@@ -42,4 +43,12 @@ export const AdminOnly = async (req, res, next) => {
     next(createHttpError(401, "Access Denied"))
   }
   next()
+}
+export const isAssetOwner = async (req, res, next) => {
+  const asset = assetModel.findById(req.params.assetId) 
+  console.log("asset poster: ",asset.poster)
+  if(req.user.role === "Admin" || req.user._id === asset.poster){
+    next()
+  }
+  next(createHttpError(401, "Access Denied"))
 }

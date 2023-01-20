@@ -1,7 +1,7 @@
 import express from "express";
 import q2m from "query-to-mongo";
 import createHttpError from "http-errors";
-import { AdminOnly, JWTAuth } from "../../lib/auth/middleware.js";
+import { AdminOnly, isAssetOwner, JWTAuth } from "../../lib/auth/middleware.js";
 import { createTokens, refreshTokens } from "../../lib/tools/tokenTools.js";
 import {
   checkUserSchema,
@@ -405,7 +405,7 @@ router.get("/chat/me", JWTAuth, async (req, res, next) => {
     try {
       const deletedChat = await chatModel.findOne({_id:req.params.chatId});
       if (deletedChat) {
-        deletedChat.remove();
+        await deletedChat.remove();
         res.status(204).send({message:`Deleted chat:${deletedChat._id}`});
       } else {
         next(createHttpError(404, `Error - Chat Not Found`));
@@ -673,6 +673,33 @@ router.get("/asset/search/:query", JWTAuth, async (req, res, next) => {
   }
 }); */
 
+
+
+router.get("/asset/:assetId", JWTAuth, async (req, res, next) => {
+  if (req.newTokens) {
+    res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
+    res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
+  }
+  try {
+    console.log(req.headers.origin, "GET Asset At:", new Date());
+    const foundAsset = await assetModel.findById(req.params.assetId).populate({
+      path : 'comments',
+      populate : {
+        path : 'sender'
+      }
+    }).populate('file');
+    console.log("Found Asset: ", foundAsset);
+    if (foundAsset) {
+      res.status(200).send(foundAsset);
+    } else {
+      next(createHttpError(404, "Asset Not Found"));
+    }
+  } catch (error) {
+    console.log("Get Asset By ID Error:", error);
+    next(error);
+  }
+});
+
 router.get("/asset", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
@@ -693,28 +720,6 @@ router.get("/asset", JWTAuth, async (req, res, next) => {
     next(error);
   }
 });
-
-
-router.get("/asset/:assetId", JWTAuth, async (req, res, next) => {
-  if (req.newTokens) {
-    res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
-    res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
-  }
-  try {
-    console.log(req.headers.origin, "GET Asset At:", new Date());
-    const foundAsset = await assetModel.findById(req.params.assetId).populate('file').populate('comments');
-    console.log("Found Asset: ", foundAsset);
-    if (foundAsset) {
-      res.status(200).send(foundAsset);
-    } else {
-      next(createHttpError(404, "Asset Not Found"));
-    }
-  } catch (error) {
-    console.log("Get Asset By ID Error:", error);
-    next(error);
-  }
-});
-
 router.post("/asset", JWTAuth, cloudinaryModelUploader, async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
@@ -774,16 +779,17 @@ router.put("/asset/:assetId", JWTAuth, async (req, res, next) => {
   }
 });
 
-router.delete("/asset/:assetId", JWTAuth, async (req, res, next) => {
+router.delete("/asset/:assetId", JWTAuth, /* isAssetOwner, */ async (req, res, next) => {
   if (req.newTokens) {
     res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
     res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
   }
   try {
-    console.log(req.headers.origin, "GET Asset At:", new Date());
-    const foundAsset = await AssetModel.findByIdAndDelete(req.params.assetId, {...req.body});
+    console.log(req.headers.origin, "Delete Asset At:", new Date());
+    const foundAsset = await assetModel.findOne({_id: req.params.assetId});
     console.log("Deleted Asset: ", foundAsset);
     if (foundAsset) {
+      await foundAsset.remove()
       res.status(204).send(foundAsset);
     } else {
       next(createHttpError(404, "Asset Not Found Or Delete Failed"));
