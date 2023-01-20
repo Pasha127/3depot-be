@@ -52,7 +52,7 @@ const cloudinaryProductUploader = multer({
 const cloudinaryModelUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary, 
-    params: {folder: "3DepotProducts", resource_type: "raw"},
+    params: {folder: "3DepotProducts", resource_type: "image"},
   })
 }).single("model")
 
@@ -591,7 +591,8 @@ router.get("/asset/search/:query", JWTAuth, async (req, res, next) => {
         { keywords: { $regex: new RegExp(req.params.query, "i") } },
         { description: { $regex: new RegExp(req.params.query, "i") } },
       ],
-    }).skip(mongoQuery.options.skip)
+    }).populate("file")
+    .skip(mongoQuery.options.skip)
     .limit(mongoQuery.options.limit);
     /* .sort(mongoQuery.options.sort); */
     console.log("Found Assets: ", foundAssets);
