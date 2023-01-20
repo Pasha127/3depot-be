@@ -25,6 +25,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import transactionModel from "../models/transactionModel.js";
 import assetModel from "../models/assetModel.js";
 import fileModel from "../models/fileModel.js";
+import commentModel from "../models/commentModel.js";
 
 
 const localEndpoint = process.env.BE_PROD_URL;
@@ -199,7 +200,12 @@ router.get("/user/me", JWTAuth, async (req, res, next) => {
   try {
     console.log(req.headers.origin, "GET me at:", new Date());
     /* console.log(req); */
-    const user = await userModel.find({ _id: req.user._id });
+    const user = await userModel.find({ _id: req.user._id }).populate({
+      path : 'uploads',
+      populate : {
+        path : 'file'
+      }
+    });
      if (user) {
       /* console.log("found user", user); */
       res.status(200).send(user);
@@ -575,6 +581,40 @@ router.delete("/transaction/:transactionId", JWTAuth, async (req, res, next) => 
 });
 
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Comments ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+router.post("/comment/:assetId", JWTAuth, cloudinaryModelUploader, async (req, res, next) => {
+  if (req.newTokens) {
+    res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
+    res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
+  }
+  try {
+    console.log("incoming comment", req.body.text)
+    const incomingComment = req.body;
+    const newComment = await commentModel({
+      sender: req.user._id,
+      content:{
+        text: incomingComment.text,
+        media: incomingComment.media
+      }
+    })
+    const {_id} = await newComment.save()
+    const updatedAsset = await assetModel.findByIdAndUpdate(
+      req.params.assetId, 
+      { $push: { comments: _id } }
+  );
+    console.log("New comment: ", _id);
+    if (_id) {
+      res.status(201).send(updatedAsset);
+    } else {
+      next(createHttpError(400, `Error - Comment Not Saved`));
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Assets ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 router.get("/asset/search/:query", JWTAuth, async (req, res, next) => {
@@ -591,7 +631,12 @@ router.get("/asset/search/:query", JWTAuth, async (req, res, next) => {
         { keywords: { $regex: new RegExp(req.params.query, "i") } },
         { description: { $regex: new RegExp(req.params.query, "i") } },
       ],
-    }).populate("file")
+    }).populate("file").populate({
+      path : 'comments',
+      populate : {
+        path : 'sender'
+      }
+    })
     .skip(mongoQuery.options.skip)
     .limit(mongoQuery.options.limit);
     /* .sort(mongoQuery.options.sort); */
@@ -606,6 +651,27 @@ router.get("/asset/search/:query", JWTAuth, async (req, res, next) => {
     next(error);
   }
 });
+
+/* router.get("/asset/me", JWTAuth, async (req, res, next) => {
+  if (req.newTokens) {
+    res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
+    res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
+  }
+  const mongoQuery = q2m(req.query)
+  try {
+    console.log(req.headers.origin, "GET Assets At:", new Date());
+    const foundAssets = await assetModel.find({poster: req.user._id}).sort(mongoQuery.options.sort);
+    console.log("Found Assets: ", foundAssets);
+    if (foundAssets) {
+      res.status(200).send(foundAssets);
+    } else {
+      next(createHttpError(404, "Assets Not Found"));
+    }
+  } catch (error) {
+    console.log("Get Assets Error:", error);
+    next(error);
+  }
+}); */
 
 router.get("/asset", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
@@ -627,6 +693,7 @@ router.get("/asset", JWTAuth, async (req, res, next) => {
     next(error);
   }
 });
+
 
 router.get("/asset/:assetId", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
@@ -671,6 +738,10 @@ router.post("/asset", JWTAuth, cloudinaryModelUploader, async (req, res, next) =
       file: savedFile._id
     });
     const { _id } = await newAsset.save();
+    const user = await userModel.findByIdAndUpdate(
+      req.user._id, 
+      { $push: { uploads: _id } }
+  );
     console.log("New Asset: ", _id);
     if (_id) {
       res.status(201).send(_id);
