@@ -205,8 +205,8 @@ router.put("/user/logout", JWTAuth, async (req, res, next) => {
 
 router.get("/user/me", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
-    res.cookie("accessToken", req.newTokens.newAccessToken,  { domain: expectedDomains,httpOnly:true});
-    res.cookie("refreshToken", req.newTokens.newRefreshToken,  { domain: expectedDomains,httpOnly:true});
+    res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
+    res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
   }
   try {
     console.log(req.headers.origin, "GET me at:", new Date());
