@@ -27,6 +27,17 @@ import assetModel from "../models/assetModel.js";
 import fileModel from "../models/fileModel.js";
 import commentModel from "../models/commentModel.js";
 
+const expectedDomains= [
+  "https://www.3depot.org",
+  "https://3-depot-crgeg5i1q-pasha127.vercel.app/",
+  "https://3-depot-fe.vercel.app/",
+  "https://3Depot.org",
+  "www.3dpot.org",
+  "https://3-depot-fe-git-main-pasha127.vercel.app/",
+  "https://3-depot-fe-pasha127.vercel.app/"
+]
+
+
 
 const localEndpoint = process.env.BE_PROD_URL;
 
@@ -194,8 +205,8 @@ router.put("/user/logout", JWTAuth, async (req, res, next) => {
 
 router.get("/user/me", JWTAuth, async (req, res, next) => {
   if (req.newTokens) {
-    res.cookie("accessToken", req.newTokens.newAccessToken, {httpOnly:true});
-    res.cookie("refreshToken", req.newTokens.newRefreshToken, {httpOnly:true});
+    res.cookie("accessToken", req.newTokens.newAccessToken,  { domain: expectedDomains,httpOnly:true});
+    res.cookie("refreshToken", req.newTokens.newRefreshToken,  { domain: expectedDomains,httpOnly:true});
   }
   try {
     console.log(req.headers.origin, "GET me at:", new Date());
