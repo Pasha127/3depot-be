@@ -31,8 +31,16 @@ io.on('connection', newConnectionHandler)
 const port = process.env.PORT || 3001;
 passport.use("google", googleStrategy)
 server.use(cors({
-    origin:process.env.FE_DEV_URL,
-    credentials:true
+  origin: [
+      "https://www.3depot.org",
+      "https://3-depot-crgeg5i1q-pasha127.vercel.app/",
+      "https://3-depot-fe.vercel.app/",
+      "https://3Depot.org",
+      "www.3dpot.org",
+      "https://3-depot-fe-git-main-pasha127.vercel.app/",
+      "https://3-depot-fe-pasha127.vercel.app/"
+  ],
+  credentials: true
 }));
 server.use(cookieParser());
 server.use(express.json());
