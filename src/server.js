@@ -38,7 +38,8 @@ server.use(cors({
       "https://3Depot.org",
       "www.3dpot.org",
       "https://3-depot-fe-git-main-pasha127.vercel.app/",
-      "https://3-depot-fe-pasha127.vercel.app/"
+      "https://3-depot-fe-pasha127.vercel.app/",
+      "https://api.3depot.org"
   ],
   credentials: true
 }));
