@@ -558,7 +558,7 @@ router.put("/transaction/:transactionId", JWTAuth, async (req, res, next) => {
   }
   try {
     console.log(req.headers.origin, "GET Transaction At:", new Date());
-    const foundTransaction = await transactionModel.findByIdAndUpdate(req.params.transactionId, {...req.body});
+    const foundTransaction = await transactionModel.findByIdAndUpdate(req.params.transactionId, {...req.body},{new:true});
     console.log("Updated Transaction: ", foundTransaction);
     if (foundTransaction) {
       res.status(200).send(foundTransaction);
@@ -613,7 +613,7 @@ router.post("/comment/:assetId", JWTAuth, cloudinaryModelUploader, async (req, r
     const updatedAsset = await assetModel.findByIdAndUpdate(
       req.params.assetId, 
       { $push: { comments: _id } }
-  ).populate("file").populate({
+  ,{new:true}).populate("file").populate({
     path : 'comments',
     populate : {
       path : 'sender'
@@ -762,7 +762,7 @@ router.post("/asset", JWTAuth, cloudinaryModelUploader, async (req, res, next) =
     const user = await userModel.findByIdAndUpdate(
       req.user._id, 
       { $push: { uploads: _id } }
-  );
+  ,{new:true});
     console.log("New Asset: ", _id);
     if (_id) {
       res.status(201).send(_id);
@@ -782,7 +782,7 @@ router.put("/asset/:assetId", JWTAuth, async (req, res, next) => {
   }
   try {
     console.log(req.headers.origin, "GET Asset At:", new Date());
-    const foundAsset = await assetModel.findByIdAndUpdate(req.params.assetId, {...req.body});
+    const foundAsset = await assetModel.findByIdAndUpdate(req.params.assetId, {...req.body},{new:true});
     console.log("Updated Asset: ", foundAsset);
     if (foundAsset) {
       res.status(200).send(foundAsset);
@@ -896,7 +896,7 @@ router.put("/file/:fileId", JWTAuth, async (req, res, next) => {
   }
   try {
     console.log(req.headers.origin, "GET File At:", new Date());
-    const foundFile = await fileModel.findByIdAndUpdate(req.params.fileId, {...req.body});
+    const foundFile = await fileModel.findByIdAndUpdate(req.params.fileId, {...req.body},{new:true});
     console.log("Updated File: ", foundFile);
     if (foundFile) {
       res.status(200).send(foundFile);
